@@ -1,0 +1,10 @@
+{
+  "name": "simple-todo-list",
+  "description": "Simple ToDo List (Vue SPA)",
+  "version": "1.0.2",
+  "author": "RichardSypher",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm install express"
+  }
+}
