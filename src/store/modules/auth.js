@@ -25,6 +25,7 @@ export default {
     }
   },
   mutations: {
+
     setToken(state, payload) {
       state.token = payload
       localStorage.setItem("token", payload)
