@@ -10,7 +10,7 @@ class Validation {
     foreach($items as $item => $rules) {
       foreach($rules as $rule => $rule_value) {
         $value = trim($source[$item]);
-        $item = escape($item);
+        $item = htmlentities($item, ENT_QUOTES, 'UTF-8');
         if($rule === 'required' && empty($value)) {
           $this->addError("{$item} is required");
         }	elseif(!empty($value)) {

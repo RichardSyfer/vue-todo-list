@@ -3,9 +3,7 @@ import VueRouter from 'vue-router'
 import { store } from './../store'
 
 import TodoLists from './../components/TodoLists'
-import Login from './../components/Login'
 import Authform from './../components/Authform'
-// import E404 from './components/E404'
 
 Vue.use(VueRouter)
 
@@ -24,11 +22,6 @@ const routes = [
       next();
     }
   },
-  // {
-  // 	path: '*',
-  // 	component: E404
-  // }
-
 ];
 
 export const router = new VueRouter({
