@@ -63,8 +63,6 @@ export default {
     register(){
       this.$store.dispatch('auth/regiterAsk',this.reg_form)
     }
-
-
   }
 }	
 

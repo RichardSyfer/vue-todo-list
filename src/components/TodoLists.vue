@@ -65,7 +65,11 @@ export default {
 		listOrder: function(list){
 			this.$store.dispatch('todoLists/updateTodoListOrder', list)
 		}
-	}
+	},
+	mounted(){
+		console.log('tdl beofre mounted')
+this.$store.dispatch('todoLists/loadTodolists')
+	},
 }
 </script>
 

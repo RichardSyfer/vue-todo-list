@@ -33,8 +33,8 @@ export default {
   },
   methods: {
     logOut: function (){
-      console.log('logOut-app')
       this.user.username = ''
+      this.$store.commit('todoLists/clearTodolists')
       this.$store.dispatch('auth/logOut')
       this.loggedIn = false
       this.$router.push('/login')
@@ -43,7 +43,9 @@ export default {
       if (!this.user.username && this.$route.path !== '/login') {
         this.loggedIn = false
         this.$router.push('/login')
-      } 
+      } else {
+        this.$store.dispatch('todoLists/loadTodolists')
+      }
     }
   },
   created () {

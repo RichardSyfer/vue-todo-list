@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import axios from 'axios'
-import {router} from './../../router'
+import Router from './../../router'
 import JwtDecode from 'jwt-decode'
 
 export default {
@@ -25,7 +25,6 @@ export default {
     }
   },
   mutations: {
-
     setToken(state, payload) {
       state.token = payload
       localStorage.setItem("token", payload)
@@ -55,6 +54,8 @@ export default {
         .then(function (response) {
           store.dispatch('getToken', response.data)
           store.commit('getUser')
+          // console.log('login push router')
+          Router.push('/')
           store.dispatch('showMsg', response.data)
         })
     },
@@ -67,11 +68,11 @@ export default {
         .then(function (response) {
           store.dispatch('getToken', response.data)
           store.commit('getUser')
+          Router.push('/')
           store.dispatch('showMsg', response.data)
         })
     },
     logOut(store){
-      console.log('logout-action-auth')
       store.commit('clearToken')
     },
     getToken(store, data){
