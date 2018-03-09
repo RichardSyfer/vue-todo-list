@@ -1,6 +1,6 @@
 ﻿1. get all statuses, not repeating, alphabetically ordered
 	
-	SELECT DISTINCT status FROM tasks
+	SELECT DISTINCT status FROM tasks ORDER BY status
 
 2. get the count of all tasks in each project, order by tasks count descending
 	
@@ -22,7 +22,7 @@ tasks and tasks with project_id=NULL	// remark: for this task we need use FULL O
 
 6. get the list of tasks with duplicate names. Order alphabetically 
 	
-	SELECT name, COUNT(*) FROM tasks GROUP by name HAVING COUNT(*) > 1 
+	SELECT name, COUNT(*) FROM tasks GROUP by name HAVING COUNT(*) > 1  ORDER BY name
 
 7. get the list of tasks having several exact matches of both name and status, from
 the project ‘Garage’. Order by matches count // remark: absolutely don't understand what do you mean "several exact matches of both name and status", how could it happen
