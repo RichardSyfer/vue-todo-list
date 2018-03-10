@@ -38,19 +38,11 @@ export default {
       this.$store.dispatch('auth/logOut')
       this.loggedIn = false
       this.$router.push('/login')
-    },
-    checkLogin () {
-      if (!this.user.username && this.$route.path !== '/login') {
-        this.loggedIn = false
-        this.$router.push('/login')
-      } else {
-        this.$store.dispatch('todoLists/loadTodolists')
-      }
     }
   },
   created () {
-    this.loggedIn = this.$store.dispatch('auth/recToken')
-    this.checkLogin()
+    this.$store.dispatch('auth/recToken')
+    // if(this.user.id) { this.$store.dispatch('todoLists/loadTodolists') }
   }
 }
 </script>

@@ -1,16 +1,14 @@
 <template>
 <div>
-
-	<template v-for="(todoList, todoListName) in todoLists">
-		<TodoList :todoList="todoList" 
-			:todoListName="todoListName"
-			:listId="todoList[0].projId"
-			:key="todoList[0].projId"
+	<template v-for="(todoList, todoListId) in todoLists">
+		<TodoList :todoList="todoList"
+			:todoListName="todoList[0].projName" 
+			:listId="todoListId"
+			:key="todoListId"
 			@saveListName="saveListName"
 			@listRemove="listRemove"
 			@listOrder="listOrder"/>
 	</template>
-
 	<NewProjectItem v-show="addNewTodoList"
 		@removeNewTodoList="removeNewTodoList"
 		@insertNewTodoList="insertNewTodoList"/>
@@ -67,8 +65,7 @@ export default {
 		}
 	},
 	mounted(){
-		console.log('tdl beofre mounted')
-this.$store.dispatch('todoLists/loadTodolists')
+		this.$store.dispatch('todoLists/loadTodolists')
 	},
 }
 </script>

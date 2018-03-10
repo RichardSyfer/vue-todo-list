@@ -11,6 +11,6 @@ export default new Router({
   mode: 'history',
   routes: [
     { path: '/login', name: 'Login', component: Authform, beforeEnter: Guard.guest },
-    { path: '/', name: 'TodoLists', component: TodoLists, beforeEnter: Guard.auth  },
+    { path: '/', name: 'TodoLists', component: TodoLists, beforeEnter: Guard.auth },
   ]
 })

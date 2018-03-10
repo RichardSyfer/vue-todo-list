@@ -10,7 +10,7 @@ export default {
 		todolists(state){
 			return state.todolists
 		},
-		// todolists: (state) => { return state.todolists },
+		// todolists: state => state.todolists,
 	},
 	mutations: {
 		clearTodolists(state){
@@ -19,7 +19,62 @@ export default {
 		loadTodolists(state, data){
 			state.todolists = data
 		},
-	},
+		insertNewTodoList(state, list){
+			let tmpState = _.cloneDeep(state, true)
+			tmpState.todolists[list.listId] = [{ 'projName': list.projName,}]
+			state.todolists = tmpState.todolists
+		},
+		updateEditedListName(state, list){
+			state.todolists[list.listId][0].projName = list.listName
+		},
+		deleteTodoList(state, listId){
+			let tmpState = _.cloneDeep(state, true)
+			delete tmpState.todolists[listId]
+			state.todolists = tmpState.todolists
+		},
+		insertTask(state, task){
+			let listLen = state.todolists[task.listId].length
+			let newTask = {
+				'projName': state.todolists[task.listId][0].projName,
+				'taskDl': new Date(),
+				'taskDone': '0',
+				'taskId': task.taskId,
+				'taskName': task.taskDesc,
+				'taskPriority': parseInt(state.todolists[task.listId][listLen - 1].taskPriority) + 1
+			}
+			let tmpState = _.cloneDeep(state, true)
+			tmpState.todolists[task.listId].push(newTask)
+			state.todolists = tmpState.todolists
+		},
+		deleteTask(state, task){
+			let tmpState = _.cloneDeep(state, true)
+			let index = state.todolists[task.listId].indexOf(task.task)
+			if(index > 0){
+				tmpState.todolists[task.listId].splice(index, 1)
+			} else {
+				tmpState.todolists[task.listId].splice(index, 1, { 'projName': task.task.projName})
+			} 
+			state.todolists = tmpState.todolists
+		},
+		updateTaskDeadLine(state, task){
+			let tmpState = _.cloneDeep(state, true)
+			let index = state.todolists[task.listId].indexOf(task.todo.prevTaskInfo)
+			tmpState.todolists[task.listId][index].taskDl = new Date(task.todo.newTaskDl).toLocaleDateString()
+			state.todolists = tmpState.todolists
+		},
+		updateCheckedTask(state, task){
+			let tmpState = _.cloneDeep(state, true)
+			let index = state.todolists[task.listId].indexOf(task.todo.prevTaskInfo)
+			tmpState.todolists[task.listId][index].taskDone = task.todo.taskDone
+			state.todolists = tmpState.todolists
+		},
+		updateEditedTask(state, task){
+			let tmpState = _.cloneDeep(state, true)
+			let index = state.todolists[task.listId].indexOf(task.todo.prevTaskInfo)
+			tmpState.todolists[task.listId][index].taskName = task.todo.taskDesc
+			state.todolists = tmpState.todolists
+		},
+},
 	actions: {
 		loadTodolists(store){
 			axios.get('/getall.php', {
@@ -38,7 +93,6 @@ export default {
 							})
 						} 
 					} catch (e) {
-						// console.log(response.data)
 						store.commit('loadTodolists', response.data)
 					}
 				})
@@ -50,10 +104,16 @@ export default {
 			params.append('listName', newTodoListName)
 			axios.post('/insert.php', params)
 				.then(function (response) {
-					// console.log('ID: ' + JSON.parse(response.data).lastInsertId)
-
+					try {
+						let resp = JSON.parse(response.data);
+						if (resp.lastInsertId) {
+							let newList = { 'listId': resp.lastInsertId, 'projName': newTodoListName }
+							store.commit('insertNewTodoList', newList)
+						}
+					} catch (e) {
+						console.log(response.data)
+					}
 					store.dispatch('showMsg', response.data)
-					store.dispatch('loadTodolists') 
 				})
 		},
 		updateEditedListName(store, list){
@@ -63,20 +123,18 @@ export default {
 			params.append('listName', list.listName)
 			axios.post('/update.php', params)
 				.then(function (response) {
-					// console.log(response.data)
+					store.commit('updateEditedListName', list)
 					store.dispatch('showMsg', response.data)
-					store.dispatch('loadTodolists')
 				})
 		},
-		deleteTodoList(store, listID){
+		deleteTodoList(store, listId){
 			let params = new URLSearchParams()
 			params.append('token', localStorage.getItem('token'))
-			params.append('listId', listID)
+			params.append('listId', listId)
 			axios.post('/delete.php', params)
 				.then(function (response) {
-					// console.log(response.data)
+					store.commit('deleteTodoList', listId)
 					store.dispatch('showMsg', response.data)
-					store.dispatch('loadTodolists')
 				})
 		},
 		updateTodoListOrder(store, list){
@@ -86,9 +144,7 @@ export default {
 			params.append('tasksPriority', list.tasksPriority)
 			axios.post('/update.php', params)
 				.then(function (response) {
-					// console.log(response.data)
 					store.dispatch('showMsg', response.data)
-					store.dispatch('loadTodolists')
 				})
 		},
 
@@ -99,56 +155,63 @@ export default {
 			params.append('taskDesc', task.taskDesc)
 			axios.post('/insert.php', params)
 				.then(function (response) {
-					// console.log('task inserted: '+ JSON.parse(response.data).lastInsertId)
+					try {
+						let resp = JSON.parse(response.data);
+						if (resp.lastInsertId) {
+							let newTask = { 'listId': task.listId, 'taskId': resp.lastInsertId, 'taskDesc': task.taskDesc }
+							store.commit('insertTask', newTask)
+						}
+					} catch (e) {
+						console.log(response.data)
+					}
 					store.dispatch('showMsg', response.data)
-					store.dispatch('loadTodolists')
 				})
 		},
 		updateEditedTask(store, task){
 			let params = new URLSearchParams()
 			params.append('token', localStorage.getItem('token'))
-			params.append('taskId', task.taskId)
-			params.append('taskDesc', task.taskDesc)
+			params.append('listId', task.listId)
+			params.append('taskId', task.todo.taskId)
+			params.append('taskDesc', task.todo.taskDesc)
 			axios.post('/update.php', params)
 				.then(function (response) {
-					// console.log(response.data)
+					store.commit('updateEditedTask', task)
 					store.dispatch('showMsg', response.data)
-					store.dispatch('loadTodolists')
 				})
 		},
-		deleteTask(store, task){
+		deleteTask(store, tsk){
 			let params = new URLSearchParams()
 			params.append('token', localStorage.getItem('token'))
-			params.append('taskId', task.taskId)
+			params.append('taskId', tsk.task.taskId)
+			params.append('listId', tsk.listId)
 			axios.post('/delete.php', params)
 				.then(function (response) {
-					// console.log(response.data)
+					store.commit('deleteTask', tsk)
 					store.dispatch('showMsg', response.data)
-					store.dispatch('loadTodolists')
 				})
 		},
 		updateCheckedTask(store, task){
 			let params = new URLSearchParams()
 			params.append('token', localStorage.getItem('token'))
-			params.append('taskId', task.taskId)
-			params.append('taskDone', task.taskDone)
+			params.append('listId', task.listId)
+			params.append('taskId', task.todo.taskId)
+			params.append('taskDone', task.todo.taskDone)
 			axios.post('/update.php', params)
 				.then(function (response) {
-					// console.log(response.data)
+					store.commit('updateCheckedTask', task)
 					store.dispatch('showMsg', response.data)
-					store.dispatch('loadTodolists')
 				})
 		},
 		updateTaskDeadLine(store, task) {
 			let params = new URLSearchParams()
 			params.append('token', localStorage.getItem('token'))
-			params.append('taskId', task.taskId)
-			params.append('taskDeadLine', task.taskDeadLine)
+			params.append('listId', task.listId)
+			params.append('taskId', task.todo.taskId)
+			params.append('taskDeadLine', task.todo.newTaskDl)
 			axios.post('/update.php', params)
 				.then(function (response) {
-					// console.log(response.data)
+					store.commit('updateTaskDeadLine', task)
 					store.dispatch('showMsg', response.data)
-					store.dispatch('loadTodolists')
 				})
 		},
 		showMsg(store, data) {
@@ -163,19 +226,3 @@ export default {
 		}
 	}
 };
-
-// function getTodoLists(){
-// 	return {
-// 			    "ghjghjhjghj": [
-// 			        {"projId":"44","taskName":"3333333333333333","taskId":"217","taskDone":"0","taskDl":"2018-02-20 08:55:40","taskPriority":"1"},
-// 			        {"projId":"44","taskName":"11111332569","taskId":"212","taskDone":"1","taskDl":"2018-02-20 08:55:40","taskPriority":"2"},
-// 			        {"projId":"44","taskName":"12358792123","taskId":"213","taskDone":"0","taskDl":"2018-02-20 08:55:40","taskPriority":"3"},
-// 			        {"projId":"44","taskName":"323","taskId":"214","taskDone":"0","taskDl":"2018-02-20 08:55:40","taskPriority":"4"},
-// 			        {"projId":"44","taskName":"7777","taskId":"215","taskDone":"0","taskDl":"2018-02-20 08:55:40","taskPriority":"5"}
-// 			        ],
-// 			    "22222222222222222222":[
-// 			        {"projId":"45","taskName":"222288888","taskId":"216","taskDone":"0","taskDl":"2018-02-19 16:35:05","taskPriority":"1"}
-// 			        ],
-// 			    "333333":[ {} ]
-// 	}
-// }

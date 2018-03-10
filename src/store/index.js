@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import axios from 'axios'
-axios.defaults.baseURL = 'http://vue-todo-list/backend/functions'
+axios.defaults.baseURL = 'http://vue-todo-list/backend/functions/'
 // axios.defaults.baseURL = 'https://tiny-to-do-list.herokuapp.com/backend/functions/'
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
 

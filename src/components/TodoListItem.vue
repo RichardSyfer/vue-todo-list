@@ -6,7 +6,7 @@
 
 			<div class="todo-list--task-chkbx-done">
 				<input :checked="todo.taskDone == 1"
-					@click="checkTask(todo.taskId, $event)"
+					@click="checkTask(todo, $event)"
 					type="checkbox" name="todo-list--task-chkbx-done">
 			</div>
 			<div :class="{done: todo.taskDone == 1}"
@@ -71,7 +71,7 @@ let taskRgEx = /^[\d\w\sа-яА-ЯЁё_!?@#№$%&.,'":]{3,1000}$/
 
 export default {
 	props: {
-		todo: {}
+		todo: {},
 	},
 	components: { Datepicker },
 	data() {
@@ -105,13 +105,10 @@ export default {
 			} else 		
 
 			if(taskRgEx.test(newTaskName)) {
-				console.log('new task name valid: ' + newTaskName)
-				console.log({'taskId': todo.taskId, 'taskDesc': newTaskName })
-				this.$emit('taskSave', {'taskId': todo.taskId, 'taskDesc': newTaskName })
+				this.$emit('taskSave', {'taskId': todo.taskId, 'taskDesc': newTaskName, 'prevTaskInfo': todo })
 				this.newTodoName = ''
 				this.editedTodo = null
 			} else {
-				console.log('task name invalid: ' + newTaskName)
 				this.invalidTaskName = true
 				let msg = `TASK description - invalid,
 				           it should contains 3-1000 symbols without some special characters` 
@@ -129,18 +126,18 @@ export default {
 			this.editedTodo = null
 			todo.taskName = this.beforeEditCache
 		},
-		checkTask: function(taskID, e) {
+		checkTask: function(todo, e) {
 			if(e.target.checked){
-				this.$emit('taskDone', { 'taskId': taskID, 'taskDone': 1 })
+				this.$emit('taskDone', { 'taskId': todo.taskId, 'taskDone': 1, 'prevTaskInfo': todo })
 			} else {
-				this.$emit('taskDone', { 'taskId': taskID, 'taskDone': 0 })
+				this.$emit('taskDone', { 'taskId': todo.taskId, 'taskDone': 0, 'prevTaskInfo': todo })
 			}
 		},
 		saveNewDeadLine: function(todo) {
 			this.datepic.show = false
 			let newTaskDl = new Date(this.datepic.taskDeadLine).toLocaleDateString()
 			if(this.beforeEditCache != newTaskDl) {
-				this.$emit('taskNewDeadLine', { 'taskId': todo.taskId, 'taskDeadLine': newTaskDl })
+				this.$emit('taskNewDeadLine', { 'taskId': todo.taskId, 'newTaskDl': newTaskDl, 'prevTaskInfo': todo })
 			} else {
 				Vue.toasted.show("Date not changed", { icon : 'info-circle', type: 'info'})
 			}

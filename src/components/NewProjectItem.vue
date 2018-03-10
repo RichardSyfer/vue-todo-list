@@ -40,21 +40,16 @@ export default {
       let newListName = this.newTodoListName.trim()
       let notNum = /^[^\D]*[\D]&*[\w\d\sа-яА-ЯЁё_!?@#№$%&.,'":-]{0,250}$/
       if(notNum.test(newListName)) {
-        console.log('list name not only numbers: ' + newListName)
         if(listRgEx.test(newListName)) {
-          console.log('list name valid: ' + newListName)
-
           this.$emit('insertNewTodoList', newListName)
           this.newTodoListName = ''
         } else {
-          console.log('list name invalid: ' + newListName)
           this.invalidListName = true
           let msg = `New TODO List description - invalid,
                     length 3-250 symbols without some special characters` 
           Vue.toasted.show(msg, { icon : 'exclamation-triangle', type: 'error', duration: 4000})
         }
       } else {
-        console.log('list name  only numbers: '+ newListName)
         this.invalidListName = true
         let msg = `New TODO List description - invalid, it shouldn't 
 									consist only numbers and have length less 3 symbols` 

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../core/init.php';
+require_once __DIR__ . '/checkUser.php';
 
 $dbh = DB::getInstance();
 
@@ -23,24 +24,29 @@ if(!empty($_POST["token"])) {
     elseif (!empty($_POST["listId"]) && !empty($_POST["taskDesc"])) {
       $project_id = $_POST["listId"];
       $taskName = trim($_POST["taskDesc"]);
+      //check if list belongs this user id
+      if(checkUser($dbh, $user_id, $project_id)){
+        if (preg_match($patternTask, $taskName) === 1) {
+          $sql_select = "SELECT MAX(priority) as maxPriority FROM tasks WHERE project_id = :project_id";
+          $sth = $dbh->exec($sql_select);
+          $sth->execute([':project_id' => $project_id]);
+          $res = $sth->fetch(PDO::FETCH_ASSOC);
+          $priority = $res['maxPriority'] + 1;
 
-      if (preg_match($patternTask, $taskName) === 1) {
-        $sql_select = "SELECT MAX(priority) as maxPriority FROM tasks WHERE project_id = :project_id";
-        $sth = $dbh->exec($sql_select);
-        $sth->execute([':project_id' => $project_id]);
-        $res = $sth->fetch(PDO::FETCH_ASSOC);
-        $priority = $res['maxPriority'] + 1;
-
-        $dbh->insert('tasks', ['name' => $taskName,
-          'status' => 0,
-          'deadline' => date('Y-m-d H:i:s'),
-          'priority' => $priority,
-          'project_id' => $project_id]);
-        $lastInsertId = $dbh->getLastInsertId();
-        $reply = '{ "lastInsertId": "' . $lastInsertId . '", "reply" : "New Task Successfuly Added to DB"}';
+          $dbh->insert('tasks', ['name' => $taskName,
+            'status' => 0,
+            'deadline' => date('Y-m-d H:i:s'),
+            'priority' => $priority,
+            'project_id' => $project_id]);
+          $lastInsertId = $dbh->getLastInsertId();
+          $reply = '{ "lastInsertId": "' . $lastInsertId . '", "reply" : "New Task Successfuly Added to DB"}';
+        } else {
+          $reply = '{ "error" : "New Task NOT Added. Incoming data not correct" }';
+        }
       } else {
-        $reply = '{ "error" : "New Task NOT Added. Incoming data not correct" }';
+        $reply = '{ "error" : "Operation not executed. Incoming data not correct" }';
       }
+
     } else {
       $reply = '{ "error" : "New TODO List / Task NOT Added. Incoming data not correct" }';
     }

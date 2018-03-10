@@ -6,7 +6,6 @@
 			<p class="todo-list-name"> 
 				<template v-if="editStarted == false">
 					{{ todoListName }}
-					 <!-- - ID: {{listId}} for debugg only -->
 				</template>
 				<input v-show="editStarted" 
 					v-model="editedListName"
@@ -26,7 +25,7 @@
 				<i v-show="editStarted" 
 					@click="saveListName(todoListName, todoList)"
 					class="todo-list--btn-save fa fa-save"></i>
-				<i @click="listRemove(listId)"
+				<i @click="listRemove(todoListName, listId)"
 					class="todo-list--btn-delete fa fa-trash"></i>
 			</div>
 		</div>
@@ -133,26 +132,23 @@ export default {
 			} else  
       if(notNum.test(editedListName)){
 				if(listRgEx.test(editedListName)) {
-					console.log('list name valid: ' + editedListName)
-					this.$emit('saveListName', { 'listId': this.listId, 'listName': editedListName })
+					this.$emit('saveListName', { 'prevListName': this.beforeEditCache, 'listId': this.listId, 'listName': editedListName })
 					this.editStarted = false
 					this.editedListName = ''
 				} else {
-					console.log('list name invalid: ' + editedListName)
 					this.invalidListName = true
 					let msg = `New TODO List description - invalid,
 										length 3-250 symbols without some special characters` 
 					Vue.toasted.show(msg, { icon : 'exclamation-triangle', type: 'error', duration: 4000})
 				}
 			} else {
-				console.log('list name  only numbers: '+ editedListName)
         this.invalidListName = true
 				let msg = `New TODO List description - invalid, it shouldn't 
 									consist only numbers and have length less 3 symbols` 
         Vue.toasted.show(msg, { icon : 'exclamation-triangle', type: 'error', duration: 4000})
 			}
 		},
-		listRemove: function(listId){
+		listRemove: function(todoListName, listId){
 			let context = this
 			let str = "Are you sure you want to delete this TodoList:\n" + this.todoListName
 			mscConfirm("Delete", str, function(){
@@ -161,23 +157,18 @@ export default {
 		},
 		cancelEditListName: function(listName){
 			this.editStarted = false
-			console.log('cancel edit list: '+this.todoListName)
 			this.editedListName = ''
 			this.todoListName = this.beforeEditCache
 		},
 		taskInsert: function(){
 			let taskName = this.newTask.trim()
 			if(taskRgEx.test(taskName)) {
-				console.log('task name valid: ' + taskName)
-				console.log('listId: ' + this.listId)
-
 				this.$store.dispatch('todoLists/insertTask', {
 					'listId': this.listId,
 					'taskDesc': taskName
 					})	
 				this.newTask = ''
 			} else {
-				console.log('task name invalid: ' + taskName)
 				this.invalidTaskName = true
 
 				let msg = `TASK description - invalid,
@@ -186,16 +177,16 @@ export default {
 			}
 		},
 		taskRemove: function(task) {
-			this.$store.dispatch('todoLists/deleteTask', task)
+			this.$store.dispatch('todoLists/deleteTask', { 'listId': this.listId, 'task': task })
 		},
 		taskSave: function(task) {
-			this.$store.dispatch('todoLists/updateEditedTask', task)
+			this.$store.dispatch('todoLists/updateEditedTask', { 'listId': this.listId, 'todo': task })
 		},
-		taskCheck: function (taskId) {
-			this.$store.dispatch('todoLists/updateCheckedTask', taskId)
+		taskCheck: function (task) {
+			this.$store.dispatch('todoLists/updateCheckedTask', { 'listId': this.listId, 'todo': task })
 		},
 		taskNewDeadLine: function(task) {
-			this.$store.dispatch('todoLists/updateTaskDeadLine', task)
+			this.$store.dispatch('todoLists/updateTaskDeadLine', { 'listId': this.listId, 'todo': task })
 		},
 	},
 	directives: {
