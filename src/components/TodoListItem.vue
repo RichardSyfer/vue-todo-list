@@ -136,7 +136,7 @@ export default {
 		saveNewDeadLine: function(todo) {
 			this.datepic.show = false
 			let newTaskDl = this.datepic.taskDeadLine
-			if(this.beforeEditCache != newTaskDl) {
+			if(this.beforeEditCache != new Date(newTaskDl).toLocaleDateString()) {
 				this.$emit('taskNewDeadLine', { 'taskId': todo.taskId, 'newTaskDl': newTaskDl, 'prevTaskInfo': todo })
 			} else {
 				Vue.toasted.show("Date not changed", { icon : 'info-circle', type: 'info'})
@@ -144,8 +144,7 @@ export default {
 		},
 		editTaskDeadline: function(todo){
 			this.datepic.show = true
-			let localFormatDate = todo.taskDl
-			this.beforeEditCache = localFormatDate
+			this.beforeEditCache = new Date(todo.taskDl).toLocaleDateString()
 			this.datepic.taskDeadLine = todo.taskDl
 		}
 	},
