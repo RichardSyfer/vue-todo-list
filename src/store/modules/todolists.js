@@ -32,6 +32,11 @@ export default {
 			delete tmpState.todolists[listId]
 			state.todolists = tmpState.todolists
 		},
+		updateTodoListOrder(state, list){
+			let tmpState = _.cloneDeep(state, true)
+			tmpState.todolists[list.todoListId] = list.newOrderList
+			state.todolists = tmpState.todolists
+		},
 		insertTask(state, task){
 			let listLen = state.todolists[task.listId].length
 			let newTask = {
@@ -59,7 +64,7 @@ export default {
 		updateTaskDeadLine(state, task){
 			let tmpState = _.cloneDeep(state, true)
 			let index = state.todolists[task.listId].indexOf(task.todo.prevTaskInfo)
-			tmpState.todolists[task.listId][index].taskDl = new Date(task.todo.newTaskDl).toLocaleDateString()
+			tmpState.todolists[task.listId][index].taskDl = task.todo.newTaskDl
 			state.todolists = tmpState.todolists
 		},
 		updateCheckedTask(state, task){
@@ -144,6 +149,7 @@ export default {
 			params.append('tasksPriority', list.tasksPriority)
 			axios.post('/update.php', params)
 				.then(function (response) {
+					store.commit('updateTodoListOrder', list)
 					store.dispatch('showMsg', response.data)
 				})
 		},
@@ -207,7 +213,7 @@ export default {
 			params.append('token', localStorage.getItem('token'))
 			params.append('listId', task.listId)
 			params.append('taskId', task.todo.taskId)
-			params.append('taskDeadLine', task.todo.newTaskDl)
+			params.append('taskDeadLine', new Date(task.todo.newTaskDl).toLocaleDateString())
 			axios.post('/update.php', params)
 				.then(function (response) {
 					store.commit('updateTaskDeadLine', task)

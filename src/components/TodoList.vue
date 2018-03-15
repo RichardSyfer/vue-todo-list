@@ -107,10 +107,10 @@ export default {
 			// get new order of tasks
 			let newTaskOrder = todoListClone.map((todo) => todo.taskId)
 			if (!this._.isEqual(prevTaskOrder, newTaskOrder)) {
-				console.log("task order changed")
 				this.$emit('listOrder', {
 					'todoListId': this.listId,
-					'tasksPriority': newTaskOrder 
+					'tasksPriority': newTaskOrder,
+					'newOrderList': todoListClone 
 				})
 			} else {
 				Vue.toasted.show("Task priority not changed", { icon : 'info-circle', type: 'info'})

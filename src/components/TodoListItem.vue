@@ -135,7 +135,7 @@ export default {
 		},
 		saveNewDeadLine: function(todo) {
 			this.datepic.show = false
-			let newTaskDl = new Date(this.datepic.taskDeadLine).toLocaleDateString()
+			let newTaskDl = this.datepic.taskDeadLine
 			if(this.beforeEditCache != newTaskDl) {
 				this.$emit('taskNewDeadLine', { 'taskId': todo.taskId, 'newTaskDl': newTaskDl, 'prevTaskInfo': todo })
 			} else {
