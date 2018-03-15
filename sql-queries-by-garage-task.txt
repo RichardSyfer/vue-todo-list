@@ -12,7 +12,7 @@
 
 4. get the tasks for all projects having the name beginning with “N” letter	
 	
-	SELECT t.name as 'task name', p.name as 'proj. name' FROM projects p LEFT JOIN tasks t ON p.id = t.project_id WHERE p.name LIKE 'N%'
+	SELECT * FROM tasks WHERE name LIKE 'N%'
 
 5. get the list of all projects containing the ‘a’ letter in the middle of the name, and
 show the tasks count near each project. Mention that there can exist projects without
@@ -25,12 +25,14 @@ tasks and tasks with project_id=NULL	// remark: for this task we need use FULL O
 	SELECT name, COUNT(*) FROM tasks GROUP by name HAVING COUNT(*) > 1  ORDER BY name
 
 7. get the list of tasks having several exact matches of both name and status, from
-the project ‘Garage’. Order by matches count // remark: absolutely don't understand what do you mean "several exact matches of both name and status", how could it happen
+the project ‘Garage’. Order by matches count -- выбрать таски у которых имя и статус одинаковые из проекта "Garage",
+если бы в БД статус был бы строковым сделал бы так: t.status = t.name , но исходя из моих текущих параметров сделал так:
 
-	SELECT t.name FROM projects p LEFT JOIN tasks t ON p.id = t.project_id WHERE p.name = 'Garage' AND t.status = 1 AND (t.name LIKE '%done%' OR t.name LIKE '%completed%')
-
-	SELECT p.name, COUNT(t.id) FROM projects p LEFT JOIN tasks t ON p.id = t.project_id WHERE p.name = 'Garage' AND t.status = 1 AND (p.name LIKE '%done%' OR p.name LIKE '%completed%') GROUP BY p.id ORDER BY COUNT(t.id)
-
+	SELECT t.name FROM projects p LEFT JOIN tasks t ON p.id = t.project_id WHERE p.name = 'Garage' AND 
+	(t.status = 1 AND (t.name LIKE 'done' OR t.name LIKE 'completed'))
+	OR
+	(t.status = 0 AND (t.name LIKE 'undone' OR t.name LIKE 'pending'))
+	
 8. get the list of project names having more than 10 tasks in status ‘completed’. Order
 by project_id
 
