@@ -144,7 +144,7 @@ export default {
 		},
 		editTaskDeadline: function(todo){
 			this.datepic.show = true
-			let localFormatDate = new Date(todo.taskDl).toLocaleDateString()
+			let localFormatDate = todo.taskDl
 			this.beforeEditCache = localFormatDate
 			this.datepic.taskDeadLine = todo.taskDl
 		}
